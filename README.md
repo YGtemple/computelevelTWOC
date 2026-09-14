@@ -1,4 +1,4 @@
-(https://github.com/user-attachments/files/32178364/README.md)# 公益版计算机等级考试刷题系统
+[README.md](https://github.com/user-attachments/files/32178369/README.md)# 公益版计算机等级考试刷题系统
 
 一个完全免费、纯前端、单文件的计算机等级考试刷题应用。双击 HTML 即可在浏览器中打开使用，无需安装、无需联网、无需后端服务器。
 
