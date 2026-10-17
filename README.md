@@ -1,171 +1,42 @@
-# computelevelTWOC 仓库说明文档
+<div align="right">
 
-> 一句话简介：公益版计算机等级考试刷题系统，纯前端单文件、七千余题双击即用
+**[English](README.md)** · [简体中文](README.zh-CN.md)
 
-> 公益版计算机等级考试刷题系统 · 纯前端单文件 Web 应用
+</div>
 
-## 一、项目概述与定位
+# computelevelTWOC
 
-`computelevelTWOC` 是一个**完全免费、纯前端、单文件**的全国计算机等级考试（NCRE）刷题应用。整个产品压缩在一个约 9.3MB 的 `index.html` 中——页面结构（HTML）、样式（CSS）、交互逻辑（JavaScript）与全部题库数据均内联其中。
+Computer level exam quiz — a question bank and a practice page packed into a single HTML file.
 
-其核心定位是「开箱即用、无任何门槛」：
-
-- **双击即用**：下载 `index.html` 后用任意现代浏览器双击打开即可使用，无需安装、无需联网、无需后端服务器与数据库；
-- **永久免费、可自由传播**：README 中明确「公益声明」，禁止商业售卖，仅供学习交流；
-- **去广告/无登录**：区别于市面付费解锁、强制登录、充斥广告的刷题软件，本项目所有功能与题目完全开放。
-
-项目同时通过 GitHub Pages（见 `pages.yml`）自动部署为在线站点，可直接在线刷题，也可下载单文件离线使用。
-
-## 二、目录结构
-
-仓库根目录非常扁平，仅 4 个条目，无子目录：
-
-| 路径 | 大小 | 类型 | 说明 |
-|------|------|------|------|
-| `index.html` | 约 9,301,066 字节（≈9.3 MB） | 文件 | 应用本体，单文件全部内容（HTML+CSS+JS+题库） |
-| `README.md` | 6,177 字节 | 文件 | 项目说明（定位、题库规模、功能、技术架构、公益声明） |
-| `pages.yml` | 722 字节 | 文件 | GitHub Actions 工作流，自动部署到 GitHub Pages |
-| `download` | 0 字节 | 空文件 | 占位空文件，无实际内容 |
-
-> 说明：仓库无 `node_modules`、无 `vendor` 第三方库目录、无构建产物——所有第三方依赖均未外链，应用完全自包含。
-
-## 三、`index.html` 内部结构剖析
-
-整个应用共 3787 行，按职责分为四段：
-
-### 1. 样式段（第 5–751 行，内联 `<style>`）
-- 移动优先的响应式 CSS，主色调为蓝色系渐变（`#4a90d9` / `#1e88e5`），辅以绿/橙/红等功能色；
-- 定义了顶部 Header、搜索框、统计卡片、进度条、快速开始按钮、功能网格、筛选胶囊按钮、卡片、选项按钮、代码块（`white-space:pre` 等宽深色主题）、底部导航等组件样式；
-- 包含多组 `@media` 媒体查询，适配平板（≤768px）与手机（≤480px），以及专门的「电脑端优化」样式。
-
-### 2. 页面骨架段（第 752–1238 行，`<body>`）
-采用 SPA 思路：所有页面写成 `<div class="page">`，通过 `.active` 类切换显隐。共 11 个页面：
-
-| 页面 id | 行号 | 用途 |
-|---------|------|------|
-| `page-home` | 752 | 主页：学习进度、快速开始、功能入口、科目筛选 |
-| `page-special` | 943 | 专项刷题（按知识点标签分类） |
-| `page-knowledge` | 959 | 知识库列表 |
-| `page-mine` | 975 | 我的：统计、收藏夹、错题本入口 |
-| `page-quiz` | 1090 | 答题页（选择题作答与判分） |
-| `page-papers` | 1155 | 套题真题列表 |
-| `page-paperDetail` | 1171 | 单套试卷详情与进度 |
-| `page-big` | 1176 | 操作题（大题）列表 |
-| `page-bigDetail` | 1197 | 操作题详情与交互作答 |
-| `page-knowledgeDetail` | 1202 | 知识点详情（含关联题目） |
-| `page-book` | 1207 | 收藏夹 / 错题本列表 |
-
-底部固定导航栏（`bottom-nav`，第 1216 行）含三个 Tab：🏠 主页、📚 知识库、👤 我的。另有一个「确认清除记录」模态弹窗（`confirmModal`）。
-
-### 3. 数据段（第 1241–1244 行，四条超长行）
-应用的「重量」几乎全部来自内联题库。四个 JS 常量以 JSON 数组形式内联：
-
-| 变量 | 行号 | 约占字符数 | 内容 |
-|------|------|-----------|------|
-| `QUESTIONS` | 1241 | 3,093,335 | 选择题库（最大，约 3 MB） |
-| `BIG_QUESTIONS` | 1242 | 680,601 | 操作题（大题）库 |
-| `KNOWLEDGE` | 1243 | 122,437 | 知识库知识点 |
-| `PAPERS` | 1244 | 803,120 | 套题真题（含内嵌题目） |
-
-第 1245 行另有 `TAG_COUNT`（知识点标签 → 题目数的映射表），驱动专项刷题入口的计数展示。
-
-**数据结构（实测抽样）：**
-
-- 选择题 `QUESTIONS` 单条示例：
-  ```json
-  {"id":"x_1","q":"在Python语言中,不能作为变量名的是（）",
-   "opts":["student","_bpn","5dp","Teacher"],
-   "exp":"Python变量命名规则……",
-   "cat":"python","ans":"C"}
-  ```
-  字段含义：`id` 题号、`q` 题干、`opts` 选项数组、`exp` 文字解析、`cat` 科目、`ans` 正确选项字母。部分题目还带 `tags`（知识点标签）、`is_star`（精选标记）、`frequency`/`appear_count`（高频标记）、`detailed_exp`（四维详细解析，见下）。
-
-- 操作题 `BIG_QUESTIONS` 单条示例含 `type`（题型）、`cat`（科目）、`question`（题干，Office 类为完整操作要求），代码类题目另带 `code`（原始源码，含填空占位符 `__1__` 等）、参考答案等。
-
-- 知识库 `KNOWLEDGE` 单条：`id`/`cat`/`name`/`icon`/`summary`/`content`，`content` 为 Markdown 格式的知识点讲解（含表格、代码块）。
-
-- 套题 `PAPERS` 单条：`{"name":"真题(二)","questions":[...],"big":[...]}`，一套完整试卷由选择题数组 + 操作题数组组成。
-
-**实测题库规模（正则统计，与 README 声明一致）：**
-
-选择题 `QUESTIONS` 按科目 `cat` 分布：
-
-| cat 代码 | 科目 | 题数 |
-|----------|------|------|
-| `c` | 二级 C 语言 | 1691 |
-| `network` | 三级网络技术 | 1344 |
-| `java` | 二级 Java | 1274 |
-| `public` | 公共基础 | 982 |
-| `wps1` | 二级 WPS Office | 719 |
-| `ms1` + `ms2` | 二级 MS Office（拆两类） | 468 + 422 = 890 |
-| `linux` | 三级 Linux | 297 |
-| `python` | 二级 Python | 243 |
-| `other` | 其他（图像处理等） | 2 |
-| **合计** | | **7442** |
-
-操作题 `BIG_QUESTIONS` 共 **750** 道，按 `type` 分布：
-
-| type | 题型 | 数量 |
-|------|------|------|
-| `fill` | 程序填空题 | 117 |
-| `excel` | Excel 操作 | 106 |
-| `ppt` | PPT 操作 | 101 |
-| `word` | Word 操作 | 96 |
-| `network` | 三级网络应用题 | 96 |
-| `design` | 程序设计题 | 73 |
-| `modify` | 程序改错题 | 44 |
-| `other` | 其他 | 41 |
-| `windows` | Windows 基本操作 | 36 |
-| `internet` | 上网操作 | 36 |
-| `wps` | WPS 操作 | 4 |
-
-知识库 `KNOWLEDGE` 共 **43** 个知识点；套题 `PAPERS` 共 **49** 套真题。
-
-科目与题型的中文映射集中定义在多处 `catMap` / `typeMap` 常量中（如 `c:'C语言'`、`public:'公共基础'`、`ms1:'二级MS'`、`wps1:'二级WPS'`、`network:'三级网络'`、`linux:'三级Linux'`；`fill:'程序填空'`、`modify:'程序改错'`、`design:'程序设计'` 等）。
-
-### 4. 逻辑段（第 1245–3784 行，内联 `<script>`）
-纯原生 JavaScript，无框架、无打包。关键模块与函数：
-
-- **状态与持久化**：`loadState()` / `saveState()`，使用浏览器 `localStorage`（`STORAGE_KEY`）保存答题记录 `state.records`、收藏 `state.favorites`、错题 `state.wrongs`、当前科目/模式筛选等，刷新不丢失；
-- **答题队列**：`questionSignature()`（题目去重签名）、`uniqueQuestions()`、`buildPracticeList(list, mode)`（按顺序/随机/错题等模式构建练习队列，随机模式自动避开近期做过的题）；
-- **页面路由**：`switchPage(page)`（切换 `.page` 显隐、同步底部导航高亮、控制返回按钮与标题）、`goBack()`；
-- **搜索**：`handleSearch()` / `doSearch()` 遍历 `QUESTIONS` 做关键词检索，带防抖，结果全屏展示；
-- **渲染**：`renderHome()`、`renderSpecial()`、`renderQuestion()`（渲染选择题并判分）、`openBig()`（打开操作题）、`bigCard()`（操作题卡片）、`renderMine()`、`renderBig()`、知识库渲染等；
-- **模拟考试**：`startMockExam()`（组卷：公共基础 10 题 + 专业知识 30 题 + 操作题 3 道）、`updateExamTimer()`（计时）、`goToBigSection()`、`submitFullExam()`（交卷评分）、`showFinalScore()`；运行期还对 `renderQuestion` 做了一次「 monkey patch」，在模拟考试中注入「👁 查看答案」按钮，支持边做边学；
-- **四维详细解析**：判分后可展开 `detailed_exp` 的 `think`（解题思路）、`knowledge`（关键知识点）、`mistake`（易错点提醒）、`extend`（拓展知识）四个区块。
-
-## 四、核心功能
-
-1. **选择题多模式练习**：顺序练习（优先未做题）、随机练习（避开近期已做）、错题重练、按 10 个科目切换、关键词实时搜索；答完即时判分并给出答案对比 + 文字解析 + 四维解析。
-2. **操作题考场模式**（核心特色，电脑端）：
-   - 程序填空题——源码中的 `__1__`/`(1)` 占位符自动渲染为输入框，填写后「提交判分」逐空对比；
-   - 程序改错题——在代码中直接改，与参考答案对比；
-   - 程序设计题——提供完整 main 结构，编写函数后对照参考答案；
-   - Office 类题目（Word/Excel/PPT/WPS）展示完整题目要求与操作步骤。
-3. **模拟考试**：完整试卷结构、计时（不限时）、可随时查答案、交卷后选择题自动判分 + 操作题自评，汇总百分制总分。
-4. **设备自适应**：自动判断桌面/移动——电脑端进入「考场模式」（可交互填写判分），手机端进入「背题模式」（直接显示答案与解析，便于碎片时间背诵）。
-5. **辅助学习**：专项刷题（按知识点标签）、套题真题（49 套）、大题真题（按科目/题型筛选）、知识库（43 个知识点，Markdown 讲解 + 关联题目）、收藏夹、错题本、学习统计（已做题数、正确率等），支持一键清空记录。
-
-## 五、技术栈与依赖
-
-- **纯前端三件套**：HTML5 + 内联 CSS3 + 原生 JavaScript（ES6，模板字符串、箭头函数、数组方法等），无 React/Vue 等框架；
-- **数据存储**：浏览器 `localStorage`（答题/收藏/错题记录），题库本身内联在 HTML 中；
-- **构建/部署**：无构建工具、无 npm、无打包。`pages.yml` 是标准的 GitHub Pages Actions 工作流（`actions/checkout@v4` → `configure-pages@v4` → `upload-pages-artifact@v3` → `deploy-pages@v4`），在 `push` 到 `main` 或手动触发时把仓库根目录直接发布为静态站点；
-- **外部依赖**：无。不引用任何 CDN、第三方 JS 库或字体文件，完全离线自包含。
-
-## 六、运行 / 使用方式
-
-- **离线使用**：下载 `index.html`，双击用浏览器打开即可；
-- **在线使用**：仓库已配置 GitHub Pages，推送到 `main` 后自动生成在线访问地址；
-- 所有学习数据保存在本机浏览器 `localStorage`，不上传任何服务器。
-
-## 七、项目特点小结
-
-- 单文件、零依赖、零安装、纯本地，是「公益刷题工具」的典型形态；
-- 题库体量扎实（选择 7442 + 操作 750 + 知识 43 + 套题 49），覆盖计算机二级 C/MS Office/WPS/Java/Python 与三级网络/Linux、公共基础；
-- 交互上针对「电脑练操作题、手机背题」做了双模式分流，并提供四维解析、高频/重点标记等辅助学习设计；
-- 题目来源于公开渠道整理，README 已声明非教育部教育考试院官方题库，复习需以官方最新大纲为准。
+<sub>HTML · one file · fully offline</sub>
 
 ---
 
-*本说明基于对仓库根目录全部文件（README.md、pages.yml、download、index.html）的实际读取与结构分析整理而成。*
+## What it is
+
+A single `index.html` (about 9.3 MB) that contains both the question bank and the practice interface. Open it and start answering.
+
+The engineering here is a deliberate trade: everything — thousands of questions, the styling, the logic — lives in one file. The cost is poor architecture. The payoff is that a user needs nothing: no server, no install, no internet after the file is downloaded.
+
+## Content
+
+Seven-thousand-plus questions across the computer level exam subjects, with a browser-based practice flow.
+
+The bank is also shipped as plain `.txt`/structured data under `download/` for reuse outside the page.
+
+## Related tooling
+
+The `tools/` directory holds companion scripts developed around the bank — see there for what they do.
+
+## Running
+
+```bash
+# open in a browser
+start index.html
+```
+
+Nothing to install. The page runs from disk.
+
+## License
+
+MIT
